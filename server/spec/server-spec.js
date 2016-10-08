@@ -16,7 +16,7 @@ describe('Persistent Node Chat Server', function() {
     });
     dbConnection.connect();
 
-       var tablename = ""; // TODO: fill this out
+    var tablename = 'messages'; // TODO: fill this out -- FILLED: with 'messages'
 
     /* Empty the db table before each test so that multiple tests
      * (or repeated runs of the tests) won't screw each other up: */
@@ -66,9 +66,10 @@ describe('Persistent Node Chat Server', function() {
   });
 
   it('Should output all messages from the DB', function(done) {
-    // Let's insert a message into the db
-       var queryString = "";
-       var queryArgs = [];
+    // Let's insert a message into the db 
+    var queryString = "INSERT INTO rooms (roomname) VALUES ('main');";
+    queryString += "INSERT INTO messages (text, id_users, id_rooms) VALUES ('Men like you can never change!', 1, 1);";
+    var queryArgs = [];
     // TODO - The exact query string and query args to use
     // here depend on the schema you design, so I'll leave
     // them up to you. */
