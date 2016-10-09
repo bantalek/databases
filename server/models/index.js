@@ -5,7 +5,7 @@ module.exports = {
     get: function (callback) {
       var queryArgs = [];
       // var queryString = 'select * from users; select * from messages;';
-      var queryString = "select u.username, m.text, r.roomname from users u inner join messages m on m.id_users=u.id inner join rooms r on m.id_rooms=r.id;";
+      var queryString = "select m.id, u.username, m.text, r.roomname from users u inner join messages m on m.id_users=u.id inner join rooms r on m.id_rooms=r.id;";
       db.query(queryString, queryArgs, function (err, results) {
         if (err) {
           console.error(err);
@@ -21,6 +21,10 @@ module.exports = {
         if (err) {
           console.error(err);
         }
+        if (results.length === 0) {
+          console.error(' ERROR: Username: ' + username + ' is not in our database');
+        }
+        
         var userId = results[0].id;
         var queryArgs = [roomname];
         var queryString = 'select r.id from rooms r where r.roomname = ?';        
@@ -46,13 +50,13 @@ module.exports = {
     // Ditto as above.
     get: function () {
 
-
     },
-    post: function (username) {
+    post: function (username, callback) {
       var queryArgs = [];
       var queryString = "insert into users (username) values (\'" + username + "\');";
       db.query(queryString, queryArgs, function(err, results) {
         if (err) { console.error(err); }
+        callback();
       });
     }
   }

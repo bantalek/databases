@@ -3,35 +3,34 @@ var models = require('../models');
 module.exports = {
   messages: {
     get: function (req, res) {
-      console.log('Handling get request');
       models.messages.get(function(results) {
         console.log(results);
-        res.end(JSON.stringify(results));
+        res.send(results);
       });
-
     }, 
     post: function (req, res) {
-      username = req.body.username;
-      message = req.body.message;
-      roomname = req.body.roomname; 
-      models.messages.post(username, message, roomname, function() {
-        res.end();
+      var body = req.body;
+      username = body.username;
+      text = body.text;
+      roomname = body.roomname; 
+      models.messages.post(username, text, roomname, function() {
+        res.send();
       });
-
     } 
   },
 
   users: {
     // Ditto as above
     get: function (req, res) {
-
+      console.log('Handling GET users request');
 
     },
     post: function (req, res) {
-      console.log('Controller handling POST');
+      console.log('Posting a new user, ', req.body);
       var username = req.body.username;
-      models.users.post(username);
-      res.end();
+      models.users.post(username, function() {
+        res.send();
+      });
     }
   }
 };

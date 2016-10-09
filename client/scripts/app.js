@@ -3,7 +3,7 @@ var app = {
 
   //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
   //to all messages sent by the user
-  server: 'https://127.0.0.1:3000/classes/messages/',
+  server: 'http://127.0.0.1:3000/classes/',
   username: 'anonymous',
   roomname: 'lobby',
   lastMessageId: 0,
@@ -25,14 +25,29 @@ var app = {
     app.$send.on('submit', app.handleSubmit);
     app.$roomSelect.on('change', app.handleRoomChange);
 
+    //Post client's name to db
+    $.ajax({
+      url: app.server + 'users', 
+      type: 'POST',
+      data: JSON.stringify({ username: app.username }),
+      contentType: 'application/json',
+      success: function (data) {
+        console.log(data);
+      },
+      error: function(err) {
+        console.log(err);
+      }
+
+    });
+
     // Fetch previous messages
     app.startSpinner();
     app.fetch(false);
 
     // Poll for new messages
-    setInterval(function() {
-      app.fetch(true);
-    }, 3000);
+    // setInterval(function() {
+    //   app.fetch(true);
+    // }, 3000);
   },
 
   send: function(message) {
@@ -40,9 +55,10 @@ var app = {
 
     // POST the message to the server
     $.ajax({
-      url: app.server,
+      url: app.server + 'messages',
       type: 'POST',
       data: JSON.stringify(message),
+      contentType: 'application/json',
       success: function (data) {
         // Clear messages input
         app.$message.val('');
@@ -58,30 +74,37 @@ var app = {
 
   fetch: function(animate) {
     $.ajax({
-      url: app.server,
+      url: app.server + 'messages',
       type: 'GET',
-      data: { order: '-createdAt' },
+      //data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
+        console.log(data.length);
+        data.forEach(function(message) {
+          console.log("MESSAGE ID",message.id);
+        });
         // Don't bother if we have nothing to work with
-        if (!data.results || !data.results.length) { return; }
+        if (!data || !data.length) {
+          console.log('Nope');
+          return;
+        }
 
         // Store messages for caching later
-        app.messages = data.results;
+        app.messages = data;
 
         // Get the last message
-        var mostRecentMessage = data.results[data.results.length - 1];
+        var mostRecentMessage = data[data.length - 1];
 
         // Only bother updating the DOM if we have a new message
-        if (mostRecentMessage.objectId !== app.lastMessageId) {
+        if (mostRecentMessage.id !== app.lastMessageId) {
           // Update the UI with the fetched rooms
-          app.renderRoomList(data.results);
+          app.renderRoomList(data);
 
           // Update the UI with the fetched messages
-          app.renderMessages(data.results, animate);
+          app.renderMessages(data, animate);
 
           // Store the ID of the most recent message
-          app.lastMessageId = mostRecentMessage.objectId;
+          app.lastMessageId = mostRecentMessage.id;
         }
       },
       error: function(error) {
