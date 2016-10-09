@@ -4,7 +4,7 @@
  */
 
 var Sequelize = require('sequelize');
-var db = new Sequelize('chatter', 'root', '');
+var db = new Sequelize('chatter', 'root', 'wally');
 /* TODO this constructor takes the database name, username, then password.
  * Modify the arguments if you need to */
 
@@ -42,3 +42,25 @@ User.sync()
     console.error(err);
     db.close();
   });
+
+User.sync()
+.then(function() {
+  // Now instantiate an object and save it:
+  return User.create({username: 'John Vandam'});
+})
+.then(function() {
+  // Retrieve objects from the database:
+  return User.findAll();
+})
+.then(function(users) {
+  users.forEach(function(user) {
+    console.log(user.username + ' EXISTS');
+  });
+  db.close();
+})
+.catch(function(err) {
+  // Handle any error in the chain
+  console.error(err);
+  db.close();
+});
+
